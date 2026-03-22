@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+}
+
+body {
+  background-color: #050505;
+  color: #ffffff;
+  margin: 0;
+  overflow-x: hidden;
+  cursor: none; /* Hide default cursor */
+}
+
+/* Ensure interactive elements also hide cursor so our custom meteor cursor shows */
+a, button, input, select, textarea {
+  cursor: none !important;
+}
+
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2), 0 0 20px rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4), 0 0 40px rgba(100, 200, 255, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+.animate-text-glow {
+  animation: text-glow 3s ease-in-out infinite;
+}
+
+.interactive-glow {
+  transition: all 0.3s ease;
+}
+
+.interactive-glow:hover, .interactive-glow:focus-within {
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.atmosphere-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  filter: blur(80px);
+  opacity: 0.6;
+  transition: all 3s ease-in-out;
+}
