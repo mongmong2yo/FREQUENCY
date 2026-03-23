@@ -23,8 +23,19 @@ class AudioEngine {
   private unlockAudioSession() {
     if (this.unlocked) return;
     try {
-      // Plays a tiny silent base64 MP3 to trick iOS into routing Web Audio through the media channel
+      // Modern iOS (17+) handling: force audio session into playback mode
+      if ('audioSession' in navigator) {
+        try {
+          (navigator as any).audioSession.type = 'playback';
+        } catch (err) {
+          console.warn("Failed to set audioSession type:", err);
+        }
+      }
+
+      // Legacy fallback (iOS < 17): Plays a tiny silent base64 MP3 to trick iOS
       const audio = new Audio("data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
+      audio.muted = false;
+      audio.setAttribute('playsinline', '');
       audio.play().then(() => {
         this.unlocked = true;
       }).catch((e) => {
