@@ -18,6 +18,22 @@ class AudioEngine {
   private currentHarmonyFreqs: number[] = [];
   private pulseGain: GainNode | null = null;
   private speedChangeTimeout: number | null = null;
+  private unlocked: boolean = false;
+
+  private unlockAudioSession() {
+    if (this.unlocked) return;
+    try {
+      // Plays a tiny silent base64 MP3 to trick iOS into routing Web Audio through the media channel
+      const audio = new Audio("data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
+      audio.play().then(() => {
+        this.unlocked = true;
+      }).catch((e) => {
+        console.warn("Audio unlock failed:", e);
+      });
+    } catch (err) {
+      console.warn("Audio object creation failed:", err);
+    }
+  }
 
   init() {
     if (!this.ctx) {
@@ -238,6 +254,7 @@ class AudioEngine {
   }
 
   play(baseFreq: number) {
+    this.unlockAudioSession();
     this.init();
 
     if (this.currentFreq === baseFreq && this.nodes.length > 0) {
@@ -346,6 +363,7 @@ class AudioEngine {
   }
 
   playHarmony(frequencies: number[]) {
+    this.unlockAudioSession();
     this.init();
 
     if (this.currentFreq === 'harmony' && this.nodes.length > 0) {
@@ -728,7 +746,7 @@ class AudioEngine {
       mp3Data.push(mp3buf);
     }
 
-    return new Blob(mp3Data, { type: 'audio/mp3' });
+    return new Blob(mp3Data as any[], { type: 'audio/mp3' });
   }
 }
 
