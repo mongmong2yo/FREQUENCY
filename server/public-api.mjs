@@ -64,9 +64,11 @@ async function readBody(request) {
 export async function checkPublicQuota(request, {env = process.env, fetchImpl = fetch, now = Date.now()} = {}) {
   const redisUrl = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL;
   const redisToken = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN;
-  const secret = env.FREQUENCY_RATE_LIMIT_SECRET;
+  // The Redis token is server-only and supplies a stable, high-entropy HMAC key.
+  // Domain separation keeps this pseudonym unrelated to other uses of the token.
+  const secret = env.FREQUENCY_RATE_LIMIT_SECRET || redisToken;
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  if (!redisUrl || !redisToken || !secret || secret.length < 32 || !ip || !isIP(ip)) return 'unavailable';
+  if (!redisUrl || !redisToken || !secret || !ip || !isIP(ip)) return 'unavailable';
   let url;
   try {
     url = new URL(redisUrl);
@@ -75,7 +77,7 @@ export async function checkPublicQuota(request, {env = process.env, fetchImpl = 
     return 'unavailable';
   }
 
-  const client = createHmac('sha256', secret).update(ip).digest('hex');
+  const client = createHmac('sha256', secret).update(`frequency:ip:v1:${ip}`).digest('hex');
   const burst = Math.floor(now / BURST_WINDOW_MS);
   const day = Math.floor(now / DAILY_WINDOW_MS);
   const keys = [

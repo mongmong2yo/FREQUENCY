@@ -10,7 +10,6 @@ const env = {
   GEMINI_API_KEY: 'synthetic-server-key',
   KV_REST_API_URL: 'https://synthetic-redis.example.invalid',
   KV_REST_API_TOKEN: 'synthetic-redis-token',
-  FREQUENCY_RATE_LIMIT_SECRET: 'synthetic-secret-of-at-least-32-characters',
 };
 const valid = {
   frequency: 432,
